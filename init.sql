@@ -1,0 +1,2 @@
+CREATE DATABASE surveydb;
+GRANT ALL PRIVILEGES ON DATABASE surveydb TO postgres;

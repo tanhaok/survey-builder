@@ -1,0 +1,126 @@
+name: api service ci
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "survey-builder-api/**"
+      - ".github/workflows/api.yaml"
+  pull_request:
+    branches: ["main", "dev"]
+    paths:
+      - "survey-builder-api/**"
+      - ".github/workflows/api.yaml"
+
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: "oracle" # Alternative distribution options are available.
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f survey-builder-api
+
+  security:
+    needs: "analyze"
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["java"]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+        # Use only 'java' to analyze code written in Java, Kotlin or both
+        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: "oracle" # Alternative distribution options are available.
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -f survey-builder-api
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
+#   docker:
+#     needs: "security"
+#     runs-on: ubuntu-latest
+#     permissions: write-all
+#     steps:
+#       - name: checkout version
+#         if: ${{ github.ref == 'refs/heads/main' }}
+#         uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+#       - name: set up env
+#         if: ${{ github.ref == 'refs/heads/main' }}
+#         uses: ./.github/workflows/actions
+#       - name: Run Maven Build Command
+#         if: ${{ github.ref == 'refs/heads/main' }}
+#         run: mvn clean install -DskipTests -f api
+#       - name: Log in to the Container registry
+#         if: ${{ github.ref == 'refs/heads/main' }}
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+#       - name: Build and push Docker images
+#         if: ${{ github.ref == 'refs/heads/main' }}
+#         uses: docker/build-push-action@v3
+#         with:
+#           context: ./api
+#           push: true
+#           tags: tanhaoke/api-estore:latest

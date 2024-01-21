@@ -25,6 +25,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import axios from "axios";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 interface props {
   isOpen: boolean;
@@ -41,6 +44,11 @@ const Transition = React.forwardRef(function Transition(
 });
 
 const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
+  const [snackBar, setSnackBar] = useState<any>({
+    isOpenBar: false,
+    msg: "",
+  });
+
   const [listQuestion, setListQuestion] = useState<Question[]>([]);
   const [survey, setSurvey] = useState<SurveyCreate>({
     description: "",
@@ -55,7 +63,7 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
     type: QuestionType.SHORT_ANSWER,
     isRequire: true,
     description: "",
-    answerChoice: undefined
+    answerChoice: undefined,
   };
 
   const addNewQuestionHandler = () => {
@@ -67,6 +75,7 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
     const old = [...listQuestion];
     old[idx] = newQuestion;
     setListQuestion([...old]);
+    setSurvey({ ...survey, questions: [...listQuestion] });
   };
 
   const onDeleteQuestionHandler = (question: string) => {
@@ -75,8 +84,27 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
   };
 
   const onSaveHandler = () => {
-    setSurvey({ ...survey, questions: [...listQuestion] });
-    console.log(listQuestion);
+    console.log(survey);
+    axios
+      .post("http://localhost:8081/api/surveys", survey)
+      .then((res) => {
+        console.log(res);
+        if (res.data.code === 201) {
+          setSnackBar({
+            isOpenBar: true,
+            msg: "Create new survey success!",
+          });
+        } else {
+          setSnackBar({
+            isOpenBar: true,
+            msg: "Cannot create new survey! Try again later",
+          });
+        }
+        onClose()
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -194,6 +222,11 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
           </AccordionDetails>
         </Accordion>
       </Dialog>
+      <Snackbar open={snackBar.isOpenBar} autoHideDuration={6000}>
+        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
+          {snackBar.msg}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

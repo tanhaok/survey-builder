@@ -31,4 +31,8 @@ public class Answer extends AbstractAuditEntity{
     @JoinColumn(name = "question_id")
     private Question question;
 
+    @ManyToOne
+    @JoinColumn(name = "survey_id")
+    private Survey survey;
+
 }

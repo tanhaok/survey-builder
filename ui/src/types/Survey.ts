@@ -18,7 +18,7 @@ export type SurveyList = {
 export type SurveyCreate = {
   name: String;
   description: String;
-  startDate: String;
-  endDate: String;
+  startDate?: String;
+  endDate?: String;
   questions: Question[];
 };

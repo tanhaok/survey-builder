@@ -15,11 +15,16 @@ import AddIcon from "@mui/icons-material/Add";
 import styles from "./index.module.css";
 import { Question, QuestionMode, QuestionType } from "@/types/Question";
 import QuestionBuilder from "../QuestionBuilder";
-import { ListItem } from "@mui/material";
+import { ListItem, TextField } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { SurveyCreate } from "@/types/Survey";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateField } from "@mui/x-date-pickers/DateField";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 interface props {
   isOpen: boolean;
@@ -37,10 +42,20 @@ const Transition = React.forwardRef(function Transition(
 
 const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
   const [listQuestion, setListQuestion] = useState<Question[]>([]);
+  const [survey, setSurvey] = useState<SurveyCreate>({
+    description: "",
+    endDate: "",
+    name: "",
+    questions: listQuestion,
+    startDate: "",
+  });
+
   const defaultNewQuestion: Question = {
     question: "Question",
     type: QuestionType.SHORT_ANSWER,
     isRequire: true,
+    description: "",
+    answerChoice: undefined
   };
 
   const addNewQuestionHandler = () => {
@@ -60,6 +75,7 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
   };
 
   const onSaveHandler = () => {
+    setSurvey({ ...survey, questions: [...listQuestion] });
     console.log(listQuestion);
   };
 
@@ -99,11 +115,44 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
             <Typography>Summary</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-              eget.
-            </Typography>
+            <TextField
+              fullWidth
+              label="Survey Name"
+              id="fullWidth"
+              value={survey.name}
+              onChange={(e) => setSurvey({ ...survey, name: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              id="standard-multiline-flexible"
+              label="Survey Description"
+              multiline
+              maxRows={4}
+              sx={{ my: 1 }}
+              value={survey.description}
+              onChange={(e) =>
+                setSurvey({ ...survey, description: e.target.value })
+              }
+            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["DateField", "DateField"]}>
+                <DateField
+                  label="Start Date"
+                  value={survey.startDate}
+                  onChange={(newValue) =>
+                    setSurvey({ ...survey, startDate: newValue?.toString() })
+                  }
+                />
+                <DateField
+                  label="End Date"
+                  value={survey.endDate}
+                  onChange={(newValue) =>
+                    setSurvey({ ...survey, endDate: newValue?.toString() })
+                  }
+                />
+              </DemoContainer>
+            </LocalizationProvider>
           </AccordionDetails>
         </Accordion>
 

@@ -18,9 +18,8 @@ export enum QuestionMode {
 
 export type Question = {
   question: string;
-  description?: String;
+  description: String;
   isRequire: boolean;
   type: QuestionType;
-  answerChoice?: any;
-  gridData?: any;
+  answerChoice: any;
 };

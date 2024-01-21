@@ -13,14 +13,13 @@ import {
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
@@ -41,7 +40,9 @@ const QuestionBuilder = ({
 }: props) => {
   const onUpdateQuestionTypeHandler = (e: SelectChangeEvent<QuestionType>) => {
     const newQ = data;
-    newQ.type = QuestionType[QuestionType[Number(e.target.value)]];
+
+    newQ.type = e.target.value as number;
+
     if (newQ.type === QuestionType.LINEAR_SCALE) {
       newQ.answerChoice = [
         {
@@ -72,8 +73,12 @@ const QuestionBuilder = ({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: keyof Question
   ) => {
-    const newQ: Question = data;
-    newQ[field] = e.target.value;
+    const newQ = { ...data };
+    if (field === "question") {
+      newQ.question = e.target.value;
+    } else {
+      newQ.description = e.target.value;
+    }
     onUpdateHandler(idx, newQ);
   };
 
@@ -83,7 +88,7 @@ const QuestionBuilder = ({
     onUpdateHandler(idx, newQ);
   };
 
-  const onAddNewAnswerChoice = (e: KeyboardEvent<HTMLDivElement>) => {
+  const onAddNewAnswerChoice = (e: any) => {
     if (e.key === "Enter") {
       const newQ = data;
       if (data.answerChoice) {
@@ -93,8 +98,12 @@ const QuestionBuilder = ({
       }
 
       onUpdateHandler(idx, newQ);
-
-      document.getElementById("standard-basic-input-option").value = "";
+      const inputTag = document.getElementById(
+        "standard-basic-input-option"
+      ) as HTMLInputElement;
+      if (inputTag) {
+        inputTag.value = "";
+      }
     }
   };
 
@@ -125,16 +134,16 @@ const QuestionBuilder = ({
     onUpdateHandler(idx, newQ);
   };
 
-  const onGridAddNewAnswerChoice = (
-    e: KeyboardEvent<HTMLDivElement>,
-    _type: string
-  ) => {
+  const onGridAddNewAnswerChoice = (e: any, _type: string) => {
     if (e.key === "Enter") {
       const newQ = data;
       newQ.answerChoice[_type] = [...data.answerChoice[_type], e.target.value];
       onUpdateHandler(idx, newQ);
-      document.getElementById(`standard-basic-input-${_type}-option`).value =
-        "";
+      (
+        document.getElementById(
+          `standard-basic-input-${_type}-option`
+        ) as HTMLInputElement
+      ).value = "";
     }
   };
 

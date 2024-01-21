@@ -1,0 +1,26 @@
+.question_form{
+    width: 100%;
+    margin-top: 1rem;
+    border: 1px solid #c4c4c4;
+    border-radius: 9px;
+    padding: 1rem;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.question_head{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question_head_left{
+    width: 80%;
+}
+
+.question_grid{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+}

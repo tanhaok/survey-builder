@@ -18,7 +18,7 @@ export enum QuestionMode {
 
 export type Question = {
   question: string;
-  description: String;
+  description: string;
   isRequire: boolean;
   type: QuestionType;
   answerChoice: any;

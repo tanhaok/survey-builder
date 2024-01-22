@@ -81,10 +81,10 @@ const columns: ColumnData[] = [
 export default function Home() {
   const [surveyData, setSurveyData] = useState<Survey[]>();
   const [originSurveyData, setOriginSurveyData] = useState<Survey[]>();
-  const [textSearch, setTextSearch] = useState<String>();
+  const [textSearch, setTextSearch] = useState<string>();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [deleteStrId, setDeleteStrId] = useState<String>("");
+  const [deleteStrId, setDeleteStrId] = useState<string>("");
 
   const getSurveyData = () => {
     axios

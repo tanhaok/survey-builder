@@ -1,8 +1,7 @@
 "use client";
-import Image from "next/image";
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
-import { Survey, SurveyList } from "@/types/Survey";
+import { Survey } from "@/types/Survey";
 import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -23,32 +22,7 @@ import TextField from "@mui/material/TextField";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import CreateSurveyDialog from "@/components/SurveyDialog";
-
-const mockDataSurvey: Survey[] = [
-  {
-    count: 1,
-    description: "this is description for 1",
-    endDate: "03, May 2023",
-    startDate: "03, April 2023",
-    id: "xxx-111",
-    name: "Survey for all user",
-    remainingDate: 6,
-  },
-  {
-    count: 2,
-    description: "this is description for 2",
-    endDate: "04, May 2023",
-    startDate: "08, April 2024",
-    id: "yyy-222",
-    name: "Survey for performance review",
-    remainingDate: 123,
-  },
-];
-
-const mockData: SurveyList = {
-  surveys: mockDataSurvey,
-  total: 120,
-};
+import axios from "axios";
 
 interface ColumnData {
   dataKey: keyof Survey;
@@ -59,46 +33,66 @@ interface ColumnData {
 
 const columns: ColumnData[] = [
   {
-    width: 200,
+    width: 120,
     label: "Name",
     dataKey: "name",
   },
   {
-    width: 120,
+    width: 200,
     label: "Description",
     dataKey: "description",
   },
   {
-    width: 120,
+    width: 80,
     label: "Start Date",
     dataKey: "startDate",
   },
   {
-    width: 120,
+    width: 80,
     label: "End Date",
     dataKey: "endDate",
     numeric: true,
   },
   {
-    width: 120,
+    width: 80,
     label: "Remaining Date",
     dataKey: "remainingDate",
     numeric: true,
   },
   {
-    width: 120,
+    width: 80,
     label: "Count",
     dataKey: "count",
     numeric: true,
   },
+  {
+    width: 80,
+    label: "Is Alow Anonymous",
+    dataKey: "isAllowAnonymous",
+  },
 ];
 
 export default function Home() {
-  const [surveyData, setSurveyData] = useState<SurveyList>();
+  const [surveyData, setSurveyData] = useState<Survey[]>();
+  const [originSurveyData, setOriginSurveyData] = useState<Survey[]>();
+  const [textSearch, setTextSearch] = useState<String>();
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
+  const getSurveyData = () => {
+    axios
+      .get("http://localhost:8081/api/surveys/all")
+      .then((res) => {
+        setSurveyData(res.data.data);
+        setOriginSurveyData(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
-    setSurveyData(mockData);
+    getSurveyData();
   }, []);
 
   const VirtuosoTableComponents: TableComponents<Survey> = {
@@ -184,21 +178,39 @@ export default function Home() {
 
   const handleCloseDialog = () => {
     setIsOpen(false);
+    getSurveyData();
+  };
+
+  const onTextSearchHandler = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const text = e.target.value;
+    setTextSearch(text);
+    if (text) {
+      const newArr = originSurveyData?.filter(
+        (data) =>
+          data.name.toLowerCase().indexOf(text.toLocaleLowerCase()) > 0 ||
+          data.description.toLowerCase().indexOf(text.toLocaleLowerCase()) > 0
+      );
+      setSurveyData(newArr);
+    } else setSurveyData(originSurveyData);
   };
 
   return (
     <main className={styles.main}>
       <div className={styles.table_header}>
-        <div>You have {surveyData?.total} surveys</div>
+        <div>You have {surveyData?.length} surveys</div>
         <div className={styles.table_utils}>
           <Fab color="primary" onClick={handleOpenDialog}>
             <AddIcon />
           </Fab>
-          <CreateSurveyDialog isOpen={isOpen} onClose={handleCloseDialog}/>
+          <CreateSurveyDialog isOpen={isOpen} onClose={handleCloseDialog} />
           <TextField
             id="input-with-icon-textfield"
             label="Search by name or description"
             sx={{ m: 1, width: "40ch", height: "5ch" }}
+            value={textSearch}
+            onChange={(e) => onTextSearchHandler(e)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="start">
@@ -213,7 +225,7 @@ export default function Home() {
       <div className={styles.survey_table}>
         <Paper style={{ height: 600, width: "100%" }}>
           <TableVirtuoso
-            data={surveyData?.surveys}
+            data={surveyData}
             components={VirtuosoTableComponents}
             fixedHeaderContent={fixedHeaderContent}
             itemContent={rowContent}

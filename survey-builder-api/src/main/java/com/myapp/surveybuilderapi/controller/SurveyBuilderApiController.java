@@ -3,9 +3,11 @@ package com.myapp.surveybuilderapi.controller;
 import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.Res;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
+import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
 import jakarta.validation.constraints.NotBlank;
 import java.util.LinkedHashMap;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,8 +35,9 @@ public class SurveyBuilderApiController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Res<?>> getAllSurvey() {
-        return null;
+    public ResponseEntity<Res<List<SurveyVm>>> getAllSurvey() {
+        Res<List<SurveyVm>> res = this.surveyService.getAllSurvey();
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/result/{surveyId}")
@@ -43,7 +46,7 @@ public class SurveyBuilderApiController {
     }
 
     @PostMapping()
-    public ResponseEntity<Res<String>> createSurvey(@RequestBody SurveyVm req) {
+    public ResponseEntity<Res<String>> createSurvey(@RequestBody SurveyCreatedVm req) {
         Res<String> res = this.surveyService.createNewSurvey(req);
         return ResponseEntity.ok(res);
     }

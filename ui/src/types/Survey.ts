@@ -8,6 +8,7 @@ export type Survey = {
   endDate: String;
   remainingDate: number;
   count: number;
+  isAllowAnonymous: boolean;
 };
 
 export type SurveyList = {

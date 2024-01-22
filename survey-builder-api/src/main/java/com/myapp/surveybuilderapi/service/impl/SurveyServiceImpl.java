@@ -11,12 +11,14 @@ import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.QuestionReq;
 import com.myapp.surveybuilderapi.viewmodel.QuestionResVm;
 import com.myapp.surveybuilderapi.viewmodel.Res;
+import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -46,7 +48,7 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public Res<String> createNewSurvey(SurveyVm data) {
+    public Res<String> createNewSurvey(SurveyCreatedVm data) {
         LOG.info(
             "Receive request to create new survey: %s. Start creating...".formatted(data.name()));
 
@@ -58,9 +60,8 @@ public class SurveyServiceImpl implements SurveyService {
         Gson gson = new Gson();
         for (QuestionReq questionReq : data.questions()) {
             String jsonData = gson.toJson(questionReq.answerChoice());
-            Question question = Question.builder().survey(survey)
-                .answerChoice(jsonData).content(questionReq.question())
-                .description(questionReq.description())
+            Question question = Question.builder().survey(survey).answerChoice(jsonData)
+                .content(questionReq.question()).description(questionReq.description())
                 .type(QuestionType.values()[questionReq.type()]).build();
 
             question = questionRepository.save(question);
@@ -91,5 +92,27 @@ public class SurveyServiceImpl implements SurveyService {
             survey.getStartDate().toString(), survey.getAnswers().size(), remainingDate, questions);
 
         return new Res<>(HttpStatus.OK.value(), "Success", resVm);
+    }
+
+    @Override
+    public Res<List<SurveyVm>> getAllSurvey() {
+        List<Survey> surveys = this.surveyRepository.findAll();
+
+        List<SurveyVm> surveyVms = surveys.stream().map(survey -> {
+            Integer count = survey.getAnswers().size();
+            Integer remainingDate =
+                (int) (survey.getEndDate().getEpochSecond() - Instant.now().getEpochSecond()) / (60
+                    * 60 * 24);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd, MMM yyyy")
+                .withZone(ZoneId.of("UTC"));
+
+            remainingDate = remainingDate <= 0 ? 0 : remainingDate;
+            String isAllow = survey.isAllowAnonymous() ? "YES" : "NO";
+
+            return new SurveyVm(survey.getId(), survey.getName(), survey.getDescription(),
+                dateTimeFormatter.format(survey.getStartDate()),
+                dateTimeFormatter.format(survey.getEndDate()), remainingDate, count, isAllow);
+        }).toList();
+        return new Res<>(HttpStatus.OK.value(), "Success", surveyVms);
     }
 }

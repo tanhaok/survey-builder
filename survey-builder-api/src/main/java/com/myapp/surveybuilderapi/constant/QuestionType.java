@@ -6,7 +6,8 @@ public enum QuestionType {
     MULTIPLE_CHOICE,
     CHECK_BOX,
     DROP_DOWN,
-    FILE_UPLOAD,
     LINEAR_SCALE,
-    DATE
+    DATE,
+    CHECKBOX_GRID,
+    MULTIPLE_CHOICE_GRID,
 }

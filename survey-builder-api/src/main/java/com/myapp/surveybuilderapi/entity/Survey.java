@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,8 +33,8 @@ public class Survey extends AbstractAuditEntity {
     private String name;
     @Column(length = 2000)
     private String description;
-    private boolean isAllowAnonymous;
-    private boolean isSpecificUser;
+    private boolean isAllowAnonymous;// TODO: now this field auto true
+    private boolean isSpecificUser; // TODO: now this field auto false
     // if isSpecificUser is true, then survey only allow user in organization take a survey.
     private String organization;
     private Instant startDate;
@@ -41,4 +42,7 @@ public class Survey extends AbstractAuditEntity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "survey")
     private Set<Question> questions;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "survey")
+    private List<Answer> answers;
 }

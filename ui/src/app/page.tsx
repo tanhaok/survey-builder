@@ -22,6 +22,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
+import CreateSurveyDialog from "@/components/SurveyDialog";
 
 const mockDataSurvey: Survey[] = [
   {
@@ -42,7 +43,6 @@ const mockDataSurvey: Survey[] = [
     name: "Survey for performance review",
     remainingDate: 123,
   },
-  
 ];
 
 const mockData: SurveyList = {
@@ -95,6 +95,7 @@ const columns: ColumnData[] = [
 
 export default function Home() {
   const [surveyData, setSurveyData] = useState<SurveyList>();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setSurveyData(mockData);
@@ -177,21 +178,30 @@ export default function Home() {
     );
   };
 
+  const handleOpenDialog = () => {
+    setIsOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsOpen(false);
+  };
+
   return (
     <main className={styles.main}>
       <div className={styles.table_header}>
         <div>You have {surveyData?.total} surveys</div>
         <div className={styles.table_utils}>
-          <Fab color="primary">
+          <Fab color="primary" onClick={handleOpenDialog}>
             <AddIcon />
           </Fab>
+          <CreateSurveyDialog isOpen={isOpen} onClose={handleCloseDialog}/>
           <TextField
             id="input-with-icon-textfield"
             label="Search by name or description"
             sx={{ m: 1, width: "40ch", height: "5ch" }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment position="start">
                   <SearchIcon />
                 </InputAdornment>
               ),

@@ -25,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "questions")
-public class Question extends AbstractAuditEntity{
+public class Question extends AbstractAuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

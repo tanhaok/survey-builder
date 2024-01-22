@@ -1,6 +1,5 @@
 package com.myapp.surveybuilderapi.entity;
 
-import com.myapp.surveybuilderapi.constant.QuestionType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +20,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "answers")
-public class Answer extends AbstractAuditEntity{
+public class Answer extends AbstractAuditEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -30,5 +30,9 @@ public class Answer extends AbstractAuditEntity{
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
+
+    @ManyToOne
+    @JoinColumn(name = "survey_id")
+    private Survey survey;
 
 }

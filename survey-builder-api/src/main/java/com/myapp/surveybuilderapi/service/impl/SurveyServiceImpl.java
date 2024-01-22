@@ -95,7 +95,7 @@ public class SurveyServiceImpl implements SurveyService {
             survey.getDescription(), survey.getEndDate().toString(),
             survey.getStartDate().toString(), survey.getAnswers().size(), remainingDate, questions);
 
-        return new Res<>(HttpStatus.OK.value(), "Success", resVm);
+        return new Res<>(HttpStatus.OK.value(), resVm);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class SurveyServiceImpl implements SurveyService {
                 dateTimeFormatter.format(survey.getStartDate()),
                 dateTimeFormatter.format(survey.getEndDate()), remainingDate, count, isAllow);
         }).toList();
-        return new Res<>(HttpStatus.OK.value(), "Success", surveyVms);
+        return new Res<>(HttpStatus.OK.value(), surveyVms);
     }
 
     @Override
@@ -127,6 +127,6 @@ public class SurveyServiceImpl implements SurveyService {
         survey.setDel(true);
         this.surveyRepository.save(survey);
 
-        return new Res<>(HttpStatus.OK.value(), "Success", null);
+        return new Res<>(HttpStatus.OK.value(), null);
     }
 }

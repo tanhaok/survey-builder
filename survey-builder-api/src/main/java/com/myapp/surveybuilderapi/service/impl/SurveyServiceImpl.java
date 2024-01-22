@@ -1,5 +1,6 @@
 package com.myapp.surveybuilderapi.service.impl;
 
+import com.google.gson.Gson;
 import com.myapp.surveybuilderapi.constant.QuestionType;
 import com.myapp.surveybuilderapi.entity.Question;
 import com.myapp.surveybuilderapi.entity.Survey;
@@ -45,7 +46,7 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public <T, K> Res<String> createNewSurvey(SurveyVm<T, K> data) {
+    public Res<String> createNewSurvey(SurveyVm data) {
         LOG.info(
             "Receive request to create new survey: %s. Start creating...".formatted(data.name()));
 
@@ -54,10 +55,11 @@ public class SurveyServiceImpl implements SurveyService {
             .startDate(convertDate(data.startDate())).endDate(convertDate(data.endDate())).build();
 
         survey = this.surveyRepository.save(survey);
-
+        Gson gson = new Gson();
         for (QuestionReq questionReq : data.questions()) {
+            String jsonData = gson.toJson(questionReq.answerChoice());
             Question question = Question.builder().survey(survey)
-                .answerChoice(questionReq.answerChoice().toString()).content(questionReq.question())
+                .answerChoice(jsonData).content(questionReq.question())
                 .description(questionReq.description())
                 .type(QuestionType.values()[questionReq.type()]).build();
 
@@ -82,7 +84,7 @@ public class SurveyServiceImpl implements SurveyService {
 
         Long endDateSecond = survey.getEndDate().getEpochSecond();
         Long startDateSecond = survey.getStartDate().getEpochSecond();
-        Integer remainingDate = (int) (endDateSecond -startDateSecond) / ( 60 * 60 * 24);
+        Integer remainingDate = (int) (endDateSecond - startDateSecond) / (60 * 60 * 24);
 
         SurveyResVm resVm = new SurveyResVm(survey.getId(), survey.getName(),
             survey.getDescription(), survey.getEndDate().toString(),

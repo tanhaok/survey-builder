@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Slf4j
 public class SurveyBuilderApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SurveyBuilderApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SurveyBuilderApiApplication.class, args);
+    }
 
 }

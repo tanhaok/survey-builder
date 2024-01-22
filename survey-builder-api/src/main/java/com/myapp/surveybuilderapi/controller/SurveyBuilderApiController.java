@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/surveys")
 public class SurveyBuilderApiController {
 
-    private SurveyService surveyService;
+    private final SurveyService surveyService;
 
-    public SurveyBuilderApiController(SurveyService surveyService){
+    public SurveyBuilderApiController(SurveyService surveyService) {
         this.surveyService = surveyService;
     }
 
@@ -43,7 +43,7 @@ public class SurveyBuilderApiController {
     }
 
     @PostMapping()
-    public <T, K> ResponseEntity<Res<String>> createSurvey(@RequestBody SurveyVm<T, K> req) {
+    public ResponseEntity<Res<String>> createSurvey(@RequestBody SurveyVm req) {
         Res<String> res = this.surveyService.createNewSurvey(req);
         return ResponseEntity.ok(res);
     }

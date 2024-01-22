@@ -1,13 +1,14 @@
 import { Question } from "./Question";
 
 export type Survey = {
-  id: String;
-  name: String;
-  description: String;
-  startDate: String;
-  endDate: String;
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
   remainingDate: number;
   count: number;
+  isAllowAnonymous: boolean;
 };
 
 export type SurveyList = {
@@ -16,9 +17,9 @@ export type SurveyList = {
 };
 
 export type SurveyCreate = {
-  name: String;
-  description: String;
-  startDate?: String;
-  endDate?: String;
+  name: string;
+  description: string;
+  startDate?: string;
+  endDate?: string;
   questions: Question[];
 };

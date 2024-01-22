@@ -11,12 +11,14 @@ import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.QuestionReq;
 import com.myapp.surveybuilderapi.viewmodel.QuestionResVm;
 import com.myapp.surveybuilderapi.viewmodel.Res;
+import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -46,21 +48,20 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public Res<String> createNewSurvey(SurveyVm data) {
+    public Res<String> createNewSurvey(SurveyCreatedVm data) {
         LOG.info(
             "Receive request to create new survey: %s. Start creating...".formatted(data.name()));
 
         Survey survey = Survey.builder().isAllowAnonymous(true).description(data.description())
-            .name(data.name()).organization("").isSpecificUser(false)
+            .name(data.name()).organization("").isSpecificUser(false).isDel(false)
             .startDate(convertDate(data.startDate())).endDate(convertDate(data.endDate())).build();
 
         survey = this.surveyRepository.save(survey);
         Gson gson = new Gson();
         for (QuestionReq questionReq : data.questions()) {
             String jsonData = gson.toJson(questionReq.answerChoice());
-            Question question = Question.builder().survey(survey)
-                .answerChoice(jsonData).content(questionReq.question())
-                .description(questionReq.description())
+            Question question = Question.builder().survey(survey).answerChoice(jsonData)
+                .content(questionReq.question()).description(questionReq.description())
                 .type(QuestionType.values()[questionReq.type()]).build();
 
             question = questionRepository.save(question);
@@ -79,6 +80,10 @@ public class SurveyServiceImpl implements SurveyService {
         Survey survey = this.surveyRepository.findById(surveyId)
             .orElseThrow(() -> new NotFoundException("Survey %s not found."));
 
+        if (survey.isDel()){
+            new Res<>(HttpStatus.OK.value(), "This survey is deleted!", null);
+        }
+
         Set<QuestionResVm> questions = survey.getQuestions().stream().map(QuestionResVm::fromModel)
             .collect(Collectors.toSet());
 
@@ -90,6 +95,38 @@ public class SurveyServiceImpl implements SurveyService {
             survey.getDescription(), survey.getEndDate().toString(),
             survey.getStartDate().toString(), survey.getAnswers().size(), remainingDate, questions);
 
-        return new Res<>(HttpStatus.OK.value(), "Success", resVm);
+        return new Res<>(HttpStatus.OK.value(), resVm);
+    }
+
+    @Override
+    public Res<List<SurveyVm>> getAllSurvey() {
+        List<Survey> surveys = this.surveyRepository.findAllByIsDel(false);
+
+        List<SurveyVm> surveyVms = surveys.stream().map(survey -> {
+            Integer count = survey.getAnswers().size();
+            Integer remainingDate =
+                (int) (survey.getEndDate().getEpochSecond() - Instant.now().getEpochSecond()) / (60
+                    * 60 * 24);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd, MMM yyyy")
+                .withZone(ZoneId.of("UTC"));
+
+            remainingDate = remainingDate <= 0 ? 0 : remainingDate;
+            String isAllow = survey.isAllowAnonymous() ? "YES" : "NO";
+
+            return new SurveyVm(survey.getId(), survey.getName(), survey.getDescription(),
+                dateTimeFormatter.format(survey.getStartDate()),
+                dateTimeFormatter.format(survey.getEndDate()), remainingDate, count, isAllow);
+        }).toList();
+        return new Res<>(HttpStatus.OK.value(), surveyVms);
+    }
+
+    @Override
+    public Res<Object> stopSurvey(String id) {
+        Survey survey = this.surveyRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Survey %s not found."));
+        survey.setDel(true);
+        this.surveyRepository.save(survey);
+
+        return new Res<>(HttpStatus.OK.value(), null);
     }
 }

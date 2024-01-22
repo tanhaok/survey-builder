@@ -1,8 +1,6 @@
 package com.myapp.surveybuilderapi.viewmodel;
 
-import java.util.List;
-
-public record SurveyVm(String name, String description, String endDate, String startDate,
-                       List<QuestionReq> questions) {
+public record SurveyVm(String id, String name, String description, String startDate, String endDate,
+                       Integer remainingDate, Integer count, String isAllowAnonymous) {
 
 }

@@ -2,8 +2,8 @@ package com.myapp.surveybuilderapi.controller;
 
 import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.Res;
-import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
+import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
 import jakarta.validation.constraints.NotBlank;
 import java.util.LinkedHashMap;
@@ -64,8 +64,9 @@ public class SurveyBuilderApiController {
     }
 
     @PatchMapping("/stop/{surveyId}")
-    public ResponseEntity<Res<?>> stopSurvey(@NotBlank @PathVariable String surveyId) {
-        return null;
+    public ResponseEntity<Res<Object>> stopSurvey(@PathVariable String surveyId) {
+        Res<Object> res = this.surveyService.stopSurvey(surveyId);
+        return ResponseEntity.ok(res);
     }
 
 }

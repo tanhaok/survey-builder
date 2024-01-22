@@ -23,6 +23,12 @@ import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import CreateSurveyDialog from "@/components/SurveyDialog";
 import axios from "axios";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 interface ColumnData {
   dataKey: keyof Survey;
@@ -78,6 +84,7 @@ export default function Home() {
   const [textSearch, setTextSearch] = useState<String>();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [deleteStrId, setDeleteStrId] = useState<String>("");
 
   const getSurveyData = () => {
     axios
@@ -163,7 +170,7 @@ export default function Home() {
             <IconButton color="primary" onClick={() => alert(row.id)}>
               <EditOutlinedIcon />
             </IconButton>
-            <IconButton color="error" onClick={() => alert(row.id)}>
+            <IconButton color="error" onClick={() => setDeleteStrId(row.id)}>
               <DeleteOutlineOutlinedIcon />
             </IconButton>
           </ButtonGroup>
@@ -179,6 +186,19 @@ export default function Home() {
   const handleCloseDialog = () => {
     setIsOpen(false);
     getSurveyData();
+  };
+
+  const onDeleteSurvey = () => {
+    const txtId = deleteStrId;
+    if (txtId) {
+      axios
+        .patch(`http://localhost:8081/api/surveys/stop/${txtId}`)
+        .then((res) => {
+          getSurveyData();
+        })
+        .catch((e) => console.log(e));
+    }
+    setDeleteStrId("");
   };
 
   const onTextSearchHandler = (
@@ -231,6 +251,27 @@ export default function Home() {
             itemContent={rowContent}
           />
         </Paper>
+
+        {/* Delete confirm dialog */}
+        <Dialog
+          open={deleteStrId !== ""}
+          onClose={() => setDeleteStrId("")}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Confirmation"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Please confirm that you want to delete the selected survey.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteStrId("")}>Disagree</Button>
+            <Button onClick={onDeleteSurvey} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </main>
   );

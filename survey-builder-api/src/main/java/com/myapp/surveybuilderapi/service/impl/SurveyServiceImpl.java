@@ -53,7 +53,7 @@ public class SurveyServiceImpl implements SurveyService {
             "Receive request to create new survey: %s. Start creating...".formatted(data.name()));
 
         Survey survey = Survey.builder().isAllowAnonymous(true).description(data.description())
-            .name(data.name()).organization("").isSpecificUser(false)
+            .name(data.name()).organization("").isSpecificUser(false).isDel(false)
             .startDate(convertDate(data.startDate())).endDate(convertDate(data.endDate())).build();
 
         survey = this.surveyRepository.save(survey);
@@ -80,6 +80,10 @@ public class SurveyServiceImpl implements SurveyService {
         Survey survey = this.surveyRepository.findById(surveyId)
             .orElseThrow(() -> new NotFoundException("Survey %s not found."));
 
+        if (survey.isDel()){
+            new Res<>(HttpStatus.OK.value(), "This survey is deleted!", null);
+        }
+
         Set<QuestionResVm> questions = survey.getQuestions().stream().map(QuestionResVm::fromModel)
             .collect(Collectors.toSet());
 
@@ -96,7 +100,7 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public Res<List<SurveyVm>> getAllSurvey() {
-        List<Survey> surveys = this.surveyRepository.findAll();
+        List<Survey> surveys = this.surveyRepository.findAllByIsDel(false);
 
         List<SurveyVm> surveyVms = surveys.stream().map(survey -> {
             Integer count = survey.getAnswers().size();
@@ -114,5 +118,15 @@ public class SurveyServiceImpl implements SurveyService {
                 dateTimeFormatter.format(survey.getEndDate()), remainingDate, count, isAllow);
         }).toList();
         return new Res<>(HttpStatus.OK.value(), "Success", surveyVms);
+    }
+
+    @Override
+    public Res<Object> stopSurvey(String id) {
+        Survey survey = this.surveyRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Survey %s not found."));
+        survey.setDel(true);
+        this.surveyRepository.save(survey);
+
+        return new Res<>(HttpStatus.OK.value(), "Success", null);
     }
 }

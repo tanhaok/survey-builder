@@ -13,4 +13,6 @@ public interface SurveyService {
     Res<SurveyResVm> getSurvey(String surveyId);
 
     Res<List<SurveyVm>> getAllSurvey();
+
+    Res<Object> stopSurvey(String id);
 }

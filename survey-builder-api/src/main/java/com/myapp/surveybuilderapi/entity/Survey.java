@@ -39,6 +39,8 @@ public class Survey extends AbstractAuditEntity {
     private String organization;
     private Instant startDate;
     private Instant endDate;
+    @Column(name = "is_del")
+    private boolean isDel;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "survey")
     private Set<Question> questions;

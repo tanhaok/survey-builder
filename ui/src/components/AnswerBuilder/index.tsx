@@ -28,20 +28,35 @@ import { DateField } from "@mui/x-date-pickers/DateField";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 interface Props {
+  idx: number;
   question: QuestionData;
   answer: Answer[];
   onUpdateAnswer: any;
-  onSubmit: any;
   styleClass: any;
 }
 
 const AnswerBuilder = ({
+  idx,
   question,
   answer,
-  onSubmit,
   onUpdateAnswer,
   styleClass,
 }: Props) => {
+  const onCheckBoxChangeHandler = (e: any) => {
+    const temp = answer[idx].answer;
+    const checkedValue = e.target.value;
+    if (temp) {
+      if (temp.includes(checkedValue)) {
+        const filterTemp = temp.filter((i: any) => i !== checkedValue);
+        onUpdateAnswer(question.id, [...filterTemp]);
+      } else {
+        onUpdateAnswer(question.id, [...temp, checkedValue]);
+      }
+    } else {
+      onUpdateAnswer(question.id, [checkedValue]);
+    }
+  };
+
   const getAnswerForm = (type: number) => {
     switch (type) {
       case 0: {
@@ -53,6 +68,7 @@ const AnswerBuilder = ({
               id="standard-basic"
               label="Your answer:"
               variant="standard"
+              onBlur={(e) => onUpdateAnswer(question.id, e.target.value)}
             />
           </div>
         );
@@ -64,10 +80,11 @@ const AnswerBuilder = ({
             <TextField
               fullWidth
               multiline
-              rows={4}
+              rows={3}
               id="standard-basic"
               label="Your answer:"
               variant="standard"
+              onBlur={(e) => onUpdateAnswer(question.id, e.target.value)}
             />
           </div>
         );
@@ -81,6 +98,7 @@ const AnswerBuilder = ({
               <RadioGroup
                 aria-labelledby="demo-radio-buttons-group-label"
                 name="radio-buttons-group"
+                onChange={(e) => onUpdateAnswer(question.id, e.target.value)}
               >
                 {choices.map((item) => (
                   <FormControlLabel
@@ -107,6 +125,7 @@ const AnswerBuilder = ({
                   control={<Checkbox />}
                   label={item}
                   key={item}
+                  onChange={onCheckBoxChangeHandler}
                 />
               ))}
             </FormControl>
@@ -123,8 +142,13 @@ const AnswerBuilder = ({
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                label="Age"
+                label="Select"
+                value={answer[idx] ? answer[idx].answer : ""}
+                onChange={(e) => onUpdateAnswer(question.id, e.target.value)}
               >
+                <MenuItem key={""} value={""}>
+                  {""}
+                </MenuItem>
                 {choices.map((item) => (
                   <MenuItem key={item} value={item}>
                     {item}
@@ -155,9 +179,9 @@ const AnswerBuilder = ({
                   ).keys()
                 ).map((i) => (
                   <Radio
-                    // checked={selectedValue === 'a'}
-                    // onChange={handleChange}
-                    value={i}
+                    checked={answer[idx] && answer[idx].answer === i + 1}
+                    onChange={() => onUpdateAnswer(question.id, i + 1)}
+                    value={i + 1}
                     name="radio-buttons"
                     inputProps={{ "aria-label": "A" }}
                     key={i.toString()}

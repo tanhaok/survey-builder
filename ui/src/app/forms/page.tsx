@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { SurveyData } from "@/types/Survey";
 import { Button, Typography } from "@mui/material";
@@ -29,6 +29,42 @@ const SubmitSurvey = () => {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (data) {
+      const questions = [...data.questions];
+      const anws: Answer[] = [];
+
+      questions.forEach((q) => {
+        anws.push({
+          qId: q.id,
+          isRequire: q.isRequire,
+          answer: q.type === 4 ? "" : q.type === 5 ? -1 : undefined,
+        });
+      });
+
+      setAnswers([...anws]);
+    }
+  }, [data]);
+
+  const onSubmitHandler = () => {
+    console.log("submitted");
+    console.log(answers);
+    const filterCheck = answers.filter(
+      (ele) => ele.isRequire && ele.answer == undefined
+    );
+
+    if (filterCheck.length > 0) {
+      console.log("con field chua co data");
+    }
+  };
+
+  const onUpdateAnswerHandler = (id: string, newAnswer: any) => {
+    const idx = answers.findIndex((i) => i.qId === id);
+    const tempArr = [...answers];
+    tempArr[idx].answer = newAnswer;
+    setAnswers([...tempArr]);
+  };
+
   if (!data) {
     return (
       <div className={styles.forms}>
@@ -37,35 +73,41 @@ const SubmitSurvey = () => {
     );
   }
   return (
-    <div className={styles.forms}>
-      <div className={styles.forms_inner}>
-        <div className={styles.form_question}>
-          <Typography variant="h5" color="secondary">
-            {data.name}
-          </Typography>
-          <Typography variant="subtitle1" display="inline">
-            {data.description}
-          </Typography>
-        </div>
+    <Suspense fallback={<p>Loading...</p>}>
+      <div className={styles.forms}>
+        <div className={styles.forms_inner}>
+          <div className={styles.form_question}>
+            <Typography variant="h5" color="secondary">
+              {data.name}
+            </Typography>
+            <Typography variant="subtitle1" display="inline">
+              {data.description}
+            </Typography>
+          </div>
 
-        {(data.questions || []).map((q) => (
-          <AnswerBuilder
-            key={q.id}
-            question={q}
-            answer={answers}
-            onSubmit={null}
-            onUpdateAnswer={null}
-            styleClass={styles.form_question}
-          />
-        ))}
+          {(data.questions || []).map((q, index) => (
+            <AnswerBuilder
+              idx={index}
+              key={q.id}
+              question={q}
+              answer={answers}
+              onUpdateAnswer={onUpdateAnswerHandler}
+              styleClass={styles.form_question}
+            />
+          ))}
 
-        <div className={styles.form_question_btn}>
-          <Button variant="contained" color="secondary">
-            Submit
-          </Button>
+          <div className={styles.form_question_btn}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={onSubmitHandler}
+            >
+              Submit
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 

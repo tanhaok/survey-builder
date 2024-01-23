@@ -62,7 +62,8 @@ public class SurveyServiceImpl implements SurveyService {
             String jsonData = gson.toJson(questionReq.answerChoice());
             Question question = Question.builder().survey(survey).answerChoice(jsonData)
                 .content(questionReq.question()).description(questionReq.description())
-                .type(QuestionType.values()[questionReq.type()]).build();
+                .isRequire(questionReq.isRequire()).type(QuestionType.values()[questionReq.type()])
+                .build();
 
             question = questionRepository.save(question);
 

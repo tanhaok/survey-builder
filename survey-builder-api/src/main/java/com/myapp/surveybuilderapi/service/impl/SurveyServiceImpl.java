@@ -2,15 +2,18 @@ package com.myapp.surveybuilderapi.service.impl;
 
 import com.google.gson.Gson;
 import com.myapp.surveybuilderapi.constant.QuestionType;
+import com.myapp.surveybuilderapi.entity.Answer;
 import com.myapp.surveybuilderapi.entity.Question;
 import com.myapp.surveybuilderapi.entity.Survey;
 import com.myapp.surveybuilderapi.exception.NotFoundException;
+import com.myapp.surveybuilderapi.repository.AnswerRepository;
 import com.myapp.surveybuilderapi.repository.QuestionRepository;
 import com.myapp.surveybuilderapi.repository.SurveyRepository;
 import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.QuestionReq;
 import com.myapp.surveybuilderapi.viewmodel.QuestionResVm;
 import com.myapp.surveybuilderapi.viewmodel.Res;
+import com.myapp.surveybuilderapi.viewmodel.SubmitAnswerVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
@@ -18,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,12 +37,14 @@ public class SurveyServiceImpl implements SurveyService {
     private static final Logger LOG = LoggerFactory.getLogger(SurveyServiceImpl.class);
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
 
     @Autowired
     public SurveyServiceImpl(SurveyRepository surveyRepository,
-        QuestionRepository questionRepository) {
+        QuestionRepository questionRepository, AnswerRepository answerRepository) {
         this.surveyRepository = surveyRepository;
         this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
     }
 
     protected Instant convertDate(String date) {
@@ -53,7 +59,7 @@ public class SurveyServiceImpl implements SurveyService {
             "Receive request to create new survey: %s. Start creating...".formatted(data.name()));
 
         Survey survey = Survey.builder().isAllowAnonymous(true).description(data.description())
-            .name(data.name()).organization("").isSpecificUser(false).isDel(false)
+            .name(data.name()).organization("").isSpecificUser(false).isDel(false).count(0)
             .startDate(convertDate(data.startDate())).endDate(convertDate(data.endDate())).build();
 
         survey = this.surveyRepository.save(survey);
@@ -104,7 +110,8 @@ public class SurveyServiceImpl implements SurveyService {
         List<Survey> surveys = this.surveyRepository.findAllByIsDel(false);
 
         List<SurveyVm> surveyVms = surveys.stream().map(survey -> {
-            Integer count = survey.getAnswers().size();
+            Integer count = survey.getAnswers().stream().map(ans -> ans.getSurvey().getId())
+                .collect(Collectors.toSet()).size();
             Integer remainingDate =
                 (int) (survey.getEndDate().getEpochSecond() - Instant.now().getEpochSecond()) / (60
                     * 60 * 24);
@@ -124,10 +131,42 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public Res<Object> stopSurvey(String id) {
         Survey survey = this.surveyRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Survey %s not found."));
+            .orElseThrow(() -> new NotFoundException("Survey %s not found.".formatted(id)));
         survey.setDel(true);
         this.surveyRepository.save(survey);
 
         return new Res<>(HttpStatus.OK.value(), null);
+    }
+
+    @Override
+    public Res<String> submitSurvey(String surveyId, SubmitAnswerVm answer) {
+        LOG.info("Receive request submit form for survey id: {}", surveyId);
+        Survey survey = this.surveyRepository.findById((surveyId))
+            .orElseThrow(() -> new NotFoundException("Survey %s not found.".formatted(surveyId)));
+
+        Gson gson = new Gson();
+
+        List<Answer> answerList = new ArrayList<>();
+
+        survey.getQuestions().forEach(question -> {
+            for (var ans : answer.answers()) {
+                if (ans.qId().equals(question.getId())) {
+                    var ansData = gson.toJson(ans.answer());
+                    Answer newAnswer = Answer.builder().survey(survey).question(question)
+                        .answer(ansData).build();
+
+                    answerList.add(newAnswer);
+                }
+            }
+        });
+
+        this.answerRepository.saveAll(answerList);
+
+        int count = survey.getCount() + 1;
+        survey.setCount(count);
+        this.surveyRepository.save(survey);
+
+        LOG.info("Submit form done!");
+        return new Res<>(HttpStatus.CREATED.value(), null);
     }
 }

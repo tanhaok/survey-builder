@@ -90,7 +90,6 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
     axios
       .post("http://localhost:8081/api/surveys", survey)
       .then((res) => {
-        console.log(res);
         if (res.data.code === 201) {
           setSnackBar({
             isOpenBar: true,

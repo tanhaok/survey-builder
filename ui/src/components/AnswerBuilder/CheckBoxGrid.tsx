@@ -24,7 +24,6 @@ const CheckBoxGrid = ({ idx, cols, rows, onUpdateAnswer, answer }: props) => {
   const [selectedData, setSelectedData] = useState<string>("");
 
   const onChangeHandler = (_row: string, _col: string) => {
-    console.log(_row + " " + _col);
     const newAns = answer[idx].answer;
     const preAnw = newAns[_row];
     newAns[_row] = _col;

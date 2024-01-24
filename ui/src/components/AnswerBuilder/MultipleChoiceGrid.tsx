@@ -26,7 +26,6 @@ const MultipleChoiceGrid = ({
   answer,
 }: props) => {
   const onChangeHandler = (_row: string, _col: string) => {
-    console.log(_row + " " + _col);
     const newAns = answer[idx].answer;
     newAns[_row] = _col;
 

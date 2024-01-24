@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { SurveyData } from "@/types/Survey";
@@ -132,4 +132,12 @@ const SubmitSurvey = () => {
   );
 };
 
-export default SubmitSurvey;
+const SubmitSurveyBuilder = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <SubmitSurvey />
+    </Suspense>
+  );
+};
+
+export default SubmitSurveyBuilder;

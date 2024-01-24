@@ -1,6 +1,7 @@
 import {
   Checkbox,
   Paper,
+  Radio,
   Table,
   TableBody,
   TableCell,
@@ -8,6 +9,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useState } from "react";
 
 interface props {
   idx: number;
@@ -15,6 +17,7 @@ interface props {
   rows: string[];
   onUpdateAnswer: any;
   answer: any;
+  isMultiple: boolean;
 }
 
 // QuestionType.MULTIPLE_CHOICE_GRID
@@ -24,13 +27,21 @@ const MultipleChoiceGrid = ({
   rows,
   onUpdateAnswer,
   answer,
+  isMultiple,
 }: props) => {
+
+  const [selectedData, setSelectedData] = useState<string>("");
+
   const onChangeHandler = (_row: string, _col: string) => {
     const newAns = answer[idx].answer;
+    const preAnw = newAns[_row];
     newAns[_row] = _col;
+
+    setSelectedData((pre) => pre.replace(preAnw, "").concat(_col));
 
     onUpdateAnswer(idx, newAns);
   };
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -55,12 +66,27 @@ const MultipleChoiceGrid = ({
               </TableCell>
               {cols.map((col) => (
                 <TableCell align="right" key={col} sx={{ border: 0 }}>
-                  <Checkbox
-                    onChange={() => onChangeHandler(row, col)}
-                    checked={
-                      answer[idx] ? answer[idx].answer[row] === col : false
-                    }
-                  />
+                  {isMultiple ? (
+                    <Checkbox
+                      onChange={() => onChangeHandler(row, col)}
+                      checked={
+                        answer[idx] ? answer[idx].answer[row] === col : false
+                      }
+                    />
+                  ) : (
+                    <Radio
+                      onChange={() => onChangeHandler(row, col)}
+                      checked={
+                        answer[idx] ? answer[idx].answer[row] === col : false
+                      }
+                      disabled={
+                        answer[idx]
+                          ? selectedData.includes(col) &&
+                            answer[idx].answer[row] !== col
+                          : false
+                      }
+                    />
+                  )}
                 </TableCell>
               ))}
             </TableRow>

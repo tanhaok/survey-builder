@@ -110,8 +110,7 @@ public class SurveyServiceImpl implements SurveyService {
         List<Survey> surveys = this.surveyRepository.findAllByIsDel(false);
 
         List<SurveyVm> surveyVms = surveys.stream().map(survey -> {
-            Integer count = survey.getAnswers().stream().map(ans -> ans.getSurvey().getId())
-                .collect(Collectors.toSet()).size();
+            Integer count = survey.getCount();
             Integer remainingDate =
                 (int) (survey.getEndDate().getEpochSecond() - Instant.now().getEpochSecond()) / (60
                     * 60 * 24);

@@ -2,26 +2,10 @@
 import { Answer } from "@/types/Answer";
 import { QuestionData } from "@/types/Question";
 import {
-  Checkbox,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
   Typography,
 } from "@mui/material";
 import React from "react";
 import styles from "./index.module.css";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateField } from "@mui/x-date-pickers/DateField";
@@ -31,7 +15,6 @@ import MultipleChoice from "./MultipleChoice";
 import CheckBox from "./CheckBox";
 import DropDown from "./DropDown";
 import LinearScale from "./LinearScale";
-import CheckBoxGrid from "./CheckBoxGrid";
 import MultipleChoiceGrid from "./MultipleChoiceGrid";
 
 interface Props {
@@ -133,12 +116,13 @@ const AnswerBuilder = ({
         const rows = [...question.answerChoice["rows"]];
         const cols = [...question.answerChoice["columns"]];
         return (
-          <CheckBoxGrid
+          <MultipleChoiceGrid
             idx={idx}
             onUpdateAnswer={onUpdateAnswer}
             rows={rows}
             cols={cols}
             answer={answer}
+            isMultiple={false}
           />
         );
       }
@@ -153,6 +137,7 @@ const AnswerBuilder = ({
             rows={rows}
             cols={cols}
             answer={answer}
+            isMultiple={true}
           />
         );
       }

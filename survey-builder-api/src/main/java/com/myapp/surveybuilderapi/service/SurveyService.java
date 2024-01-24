@@ -1,6 +1,7 @@
 package com.myapp.surveybuilderapi.service;
 
 import com.myapp.surveybuilderapi.viewmodel.Res;
+import com.myapp.surveybuilderapi.viewmodel.SubmitAnswerVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
@@ -15,4 +16,6 @@ public interface SurveyService {
     Res<List<SurveyVm>> getAllSurvey();
 
     Res<Object> stopSurvey(String id);
+
+    Res<String> submitSurvey(String surveyId, SubmitAnswerVm ans);
 }

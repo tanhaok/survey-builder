@@ -2,6 +2,7 @@ package com.myapp.surveybuilderapi.controller;
 
 import com.myapp.surveybuilderapi.service.SurveyService;
 import com.myapp.surveybuilderapi.viewmodel.Res;
+import com.myapp.surveybuilderapi.viewmodel.SubmitAnswerVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
@@ -30,13 +31,13 @@ public class SurveyBuilderApiController {
 
     @GetMapping("/{surveyId}")
     public ResponseEntity<Res<SurveyResVm>> getSurvey(@PathVariable String surveyId) {
-        Res<SurveyResVm> res = this.surveyService.getSurvey(surveyId);
+        var res = this.surveyService.getSurvey(surveyId);
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Res<List<SurveyVm>>> getAllSurvey() {
-        Res<List<SurveyVm>> res = this.surveyService.getAllSurvey();
+        var res = this.surveyService.getAllSurvey();
         return ResponseEntity.ok(res);
     }
 
@@ -47,14 +48,15 @@ public class SurveyBuilderApiController {
 
     @PostMapping()
     public ResponseEntity<Res<String>> createSurvey(@RequestBody SurveyCreatedVm req) {
-        Res<String> res = this.surveyService.createNewSurvey(req);
+        var res = this.surveyService.createNewSurvey(req);
         return ResponseEntity.ok(res);
     }
 
     @PostMapping("/submit/{surveyId}")
-    public <T, K> ResponseEntity<Res<String>> submitSurvey(@RequestBody LinkedHashMap<T, K> req,
+    public ResponseEntity<Res<String>> submitSurvey(@RequestBody SubmitAnswerVm ans,
         @PathVariable String surveyId) {
-        return null;
+        var res = this.surveyService.submitSurvey(surveyId, ans);
+        return ResponseEntity.ok(res);
     }
 
     @PutMapping("/edit/{surveyId}")

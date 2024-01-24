@@ -1,4 +1,4 @@
-import { Question } from "./Question";
+import { Question, QuestionData } from "./Question";
 
 export type Survey = {
   id: string;
@@ -22,4 +22,11 @@ export type SurveyCreate = {
   startDate?: string;
   endDate?: string;
   questions: Question[];
+};
+
+export type SurveyData = {
+  id: string;
+  name: string;
+  description: string;
+  questions: QuestionData[];
 };

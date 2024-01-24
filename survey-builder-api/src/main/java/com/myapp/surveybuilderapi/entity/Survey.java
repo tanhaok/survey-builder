@@ -39,6 +39,7 @@ public class Survey extends AbstractAuditEntity {
     private String organization;
     private Instant startDate;
     private Instant endDate;
+    private Integer count;
     @Column(name = "is_del")
     private boolean isDel;
 

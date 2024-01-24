@@ -1,0 +1,29 @@
+.forms {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.forms_inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 50%;
+}
+
+.form_question {
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #c4c4c4;
+  border-radius: 9px;
+  padding: 1rem;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.form_question_btn {
+  text-align: end;
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}

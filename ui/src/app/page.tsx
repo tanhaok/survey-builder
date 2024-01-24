@@ -29,6 +29,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Header from "@/components/Header";
 
 interface ColumnData {
   dataKey: keyof Survey;
@@ -218,6 +219,8 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      <Header />
+
       <div className={styles.table_header}>
         <div>You have {surveyData?.length} surveys</div>
         <div className={styles.table_utils}>

@@ -67,8 +67,10 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
   };
 
   const addNewQuestionHandler = () => {
-    defaultNewQuestion.question = "Question " + listQuestion.length;
-    setListQuestion([...listQuestion, defaultNewQuestion]);
+    defaultNewQuestion.question = "Question " + (listQuestion.length + 1);
+    const newQ = [...listQuestion, defaultNewQuestion];
+    setListQuestion([...newQ]);
+    setSurvey({ ...survey, questions: [...newQ] });
   };
 
   const onUpdateQuestionHandler = (idx: number, newQuestion: Question) => {
@@ -81,14 +83,13 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
   const onDeleteQuestionHandler = (question: string) => {
     const filterList = listQuestion.filter((i) => i.question !== question);
     setListQuestion([...filterList]);
+    setSurvey({ ...survey, questions: [...filterList] });
   };
 
   const onSaveHandler = () => {
-    console.log(survey);
     axios
       .post("http://localhost:8081/api/surveys", survey)
       .then((res) => {
-        console.log(res);
         if (res.data.code === 201) {
           setSnackBar({
             isOpenBar: true,
@@ -100,7 +101,7 @@ const CreateSurveyDialog = ({ isOpen, onClose }: props) => {
             msg: "Cannot create new survey! Try again later",
           });
         }
-        onClose()
+        onClose();
       })
       .catch((err) => {
         console.log(err);

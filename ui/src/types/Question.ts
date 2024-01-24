@@ -23,3 +23,12 @@ export type Question = {
   type: QuestionType;
   answerChoice: any;
 };
+
+export type QuestionData = {
+  id: string;
+  question: string;
+  description: string;
+  isRequire: boolean;
+  type: number;
+  answerChoice: any;
+};

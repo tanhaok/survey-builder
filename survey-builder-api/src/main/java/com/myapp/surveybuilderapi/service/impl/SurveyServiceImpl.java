@@ -70,7 +70,7 @@ public class SurveyServiceImpl implements SurveyService {
             LOG.debug("Create new question: " + question.getId());
         }
 
-        LOG.info("Create new survey %s done".formatted(data.name()));
+        LOG.info("Create new survey {} done" ,data.name());
 
         return new Res<>(HttpStatus.CREATED.value(), "Create new survey success", null);
     }

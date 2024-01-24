@@ -34,11 +34,12 @@ const SubmitSurvey = () => {
       const questions = [...data.questions];
       const anws: Answer[] = [];
 
+      const defaultAnswer = ["", "", [], "", "", -1, "", {}, {}];
       questions.forEach((q) => {
         anws.push({
           qId: q.id,
           isRequire: q.isRequire,
-          answer: q.type === 4 ? "" : q.type === 5 ? -1 : undefined,
+          answer: defaultAnswer[q.type],
         });
       });
 
@@ -58,8 +59,7 @@ const SubmitSurvey = () => {
     }
   };
 
-  const onUpdateAnswerHandler = (id: string, newAnswer: any) => {
-    const idx = answers.findIndex((i) => i.qId === id);
+  const onUpdateAnswerHandler = (idx: number, newAnswer: any) => {
     const tempArr = [...answers];
     tempArr[idx].answer = newAnswer;
     setAnswers([...tempArr]);

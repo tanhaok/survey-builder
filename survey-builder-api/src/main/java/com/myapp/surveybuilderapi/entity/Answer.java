@@ -27,6 +27,9 @@ public class Answer extends AbstractAuditEntity {
     private String id;
     private String answer;
 
+    // unique uuid for each submit
+    private String hash;
+
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;

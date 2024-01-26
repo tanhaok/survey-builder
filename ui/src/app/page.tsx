@@ -30,6 +30,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Header from "@/components/Header";
+import GetAppOutlinedIcon from "@mui/icons-material/GetAppOutlined";
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
 
 interface ColumnData {
   dataKey: keyof Survey;
@@ -80,6 +83,10 @@ const columns: ColumnData[] = [
 ];
 
 export default function Home() {
+  const fileType =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  const fileExtension = ".xlsx";
+
   const [surveyData, setSurveyData] = useState<Survey[]>();
   const [originSurveyData, setOriginSurveyData] = useState<Survey[]>();
   const [textSearch, setTextSearch] = useState<string>();
@@ -102,6 +109,25 @@ export default function Home() {
   useEffect(() => {
     getSurveyData();
   }, []);
+
+  const onExportDataHandler = (id: string) => {
+    axios
+      .get(`http://localhost:8081/api/surveys/result/${id}`)
+      .then((res) => res.data.data)
+      .then((data) => {
+        const ws = XLSX.utils.json_to_sheet(data["answers"]);
+        XLSX.utils.sheet_add_aoa(ws, [[...data["questions"]]], {
+          origin: "A1",
+        });
+
+        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const exportData = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(exportData, data["surveyName"] + fileExtension);
+        alert("export");
+      })
+      .catch((err) => console.log(err));
+  };
 
   const VirtuosoTableComponents: TableComponents<Survey> = {
     // eslint-disable-next-line react/display-name
@@ -165,8 +191,11 @@ export default function Home() {
         ))}
         <TableCell align="center">
           <ButtonGroup>
-            <IconButton color="success" onClick={() => alert(row.id)}>
-              <DensitySmallOutlinedIcon />
+            <IconButton
+              color="success"
+              onClick={() => onExportDataHandler(row.id)}
+            >
+              <GetAppOutlinedIcon />
             </IconButton>
             <IconButton color="primary" onClick={() => alert(row.id)}>
               <EditOutlinedIcon />

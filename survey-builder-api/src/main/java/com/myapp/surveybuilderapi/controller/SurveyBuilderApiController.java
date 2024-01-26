@@ -5,6 +5,7 @@ import com.myapp.surveybuilderapi.viewmodel.Res;
 import com.myapp.surveybuilderapi.viewmodel.SubmitAnswerVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyCreatedVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyResVm;
+import com.myapp.surveybuilderapi.viewmodel.SurveyResultDetailVm;
 import com.myapp.surveybuilderapi.viewmodel.SurveyVm;
 import jakarta.validation.constraints.NotBlank;
 import java.util.LinkedHashMap;
@@ -42,8 +43,10 @@ public class SurveyBuilderApiController {
     }
 
     @GetMapping("/result/{surveyId}")
-    public ResponseEntity<Res<?>> getSurveyResult(@PathVariable String surveyId) {
-        return null;
+    public ResponseEntity<Res<SurveyResultDetailVm>> getSurveyResult(
+        @PathVariable String surveyId) {
+        var res = this.surveyService.getSurveyResult(surveyId);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping()

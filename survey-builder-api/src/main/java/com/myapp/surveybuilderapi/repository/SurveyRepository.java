@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SurveyRepository extends JpaRepository<Survey, String> {
+
     List<Survey> findAllByIsDel(boolean isDel);
 }

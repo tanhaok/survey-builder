@@ -33,6 +33,7 @@ import Header from "@/components/Header";
 import GetAppOutlinedIcon from "@mui/icons-material/GetAppOutlined";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 
 interface ColumnData {
   dataKey: keyof Survey;
@@ -124,7 +125,6 @@ export default function Home() {
         const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
         const exportData = new Blob([excelBuffer], { type: fileType });
         FileSaver.saveAs(exportData, data["surveyName"] + fileExtension);
-        alert("export");
       })
       .catch((err) => console.log(err));
   };
@@ -178,6 +178,12 @@ export default function Home() {
     );
   };
 
+  const onClickCopyLinkHandler = (id: string) => {
+    const text = `http://localhost:3000/forms?id=${id}`;
+    navigator.clipboard.writeText(text);
+    alert("Copied");
+  };
+
   const rowContent = (_index: number, row: Survey) => {
     return (
       <React.Fragment>
@@ -191,6 +197,12 @@ export default function Home() {
         ))}
         <TableCell align="center">
           <ButtonGroup>
+            <IconButton
+              color="secondary"
+              onClick={() => onClickCopyLinkHandler(row.id)}
+            >
+              <ContentCopyOutlinedIcon />
+            </IconButton>
             <IconButton
               color="success"
               onClick={() => onExportDataHandler(row.id)}

@@ -107,12 +107,30 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: set up env
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: mvn clean install -DskipTests -f api
+      
+      # - name: Set up JDK 21
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     java-version: 21
+      #     distribution: "oracle" # Alternative distribution options are available.
+      # - name: Cache SonarCloud packages
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.sonar/cache
+      #     key: ${{ runner.os }}-sonar
+      #     restore-keys: ${{ runner.os }}-sonar
+      # - name: Cache Maven packages
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2
+      #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      #     restore-keys: ${{ runner.os }}-m2
+      # - name: Run Maven Build Command
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   run: mvn clean install -DskipTests -f survey-builder-api
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
@@ -125,4 +143,4 @@ jobs:
         with:
           context: ./survey-builder-api
           push: true
-          tags: tanhaoke/survey-builder-api-estore:latest
+          tags: tanhaoke/survey-builder-api:latest

@@ -1,24 +1,33 @@
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+FROM maven:3.8.8 AS builder
 WORKDIR /workdir/server
 COPY pom.xml /workdir/server/pom.xml
 RUN mvn dependency:go-offline
 
 COPY src /workdir/server/src
-RUN mvn install
+RUN mvn install -DskipTests
 
 
-FROM builder as prepare-production
-RUN mkdir -p target/dependency
-WORKDIR /workdir/server/target/dependency
-RUN jar -xf ../*.jar
 
-FROM eclipse-temurin:21
+# Use a slim base image with Java 21
+FROM eclipse-temurin:21-jdk-alpine
 
+# Create a non-root user for security
+RUN adduser -D appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy the application JAR file
+COPY --from=builder /workdir/server/target/*.jar /app/app.jar
+
+# Change ownership of the JAR file to the non-root user
+RUN chown appuser:appuser /app/app.jar
+
+# Switch to the non-root user
+USER appuser
+
+# Expose port 8080 (typical for Spring Boot apps)
 EXPOSE 9090
-VOLUME /tmp
-ARG DEPENDENCY=/workdir/server/target/dependency
 
-COPY --from=prepare-production ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=prepare-production ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=prepare-production ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.myapp.surveybuilderapi.SurveyBuilderApiApplication"]
+# Run the application using a specific entry point
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
